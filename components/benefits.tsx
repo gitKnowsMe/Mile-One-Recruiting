@@ -11,17 +11,17 @@ interface BenefitItem {
 const benefits: BenefitItem[] = [
   {
     title: 'Competitive Pay',
-    description: 'Earn $75K+ in your first year. Top earners make well over $100K annually.',
+    description: 'Earn $100K+ in your first year. Top earners make well over $100K annually.',
     icon: '💰',
   },
   {
-    title: 'Free Training',
-    description: 'Comprehensive CDL training programs for new and experienced drivers.',
+    title: 'Paid Training ($500/week)',
+    description: 'Comprehensive CDL training programs for new and experienced drivers — and you get paid while you learn.',
     icon: '🎓',
   },
   {
     title: 'Home Time',
-    description: 'Flexible schedules and home time options. Your life matters.',
+    description: 'Expect home time every 2–3 weeks. Your life and family matter.',
     icon: '🏠',
   },
   {

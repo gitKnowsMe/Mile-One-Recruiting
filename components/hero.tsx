@@ -60,15 +60,15 @@ export function Hero() {
 
           <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-lg">
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-accent">$75K+</p>
+              <p className="text-3xl sm:text-4xl font-bold text-accent">$100K+</p>
               <p className="text-sm text-white/80 mt-1">First Year Potential</p>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-accent">Free</p>
-              <p className="text-sm text-white/80 mt-1">Training Programs</p>
+              <p className="text-2xl sm:text-3xl font-bold text-accent leading-tight">Paid Training</p>
+              <p className="text-sm text-white/80 mt-1">($500/week)</p>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-accent">100%</p>
+              <p className="text-xl sm:text-2xl font-bold text-accent leading-tight">Every 2–3 Weeks</p>
               <p className="text-sm text-white/80 mt-1">Home Time</p>
             </div>
           </div>
