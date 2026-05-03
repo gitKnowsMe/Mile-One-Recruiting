@@ -72,6 +72,15 @@ export function Hero() {
               <p className="text-sm text-white/80 mt-2">Home Time</p>
             </div>
           </div>
+
+          <div className="mt-10">
+            <p className="text-xs text-white/70 uppercase tracking-wider font-semibold mb-3">Partner Carriers</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <p className="text-sm text-white/90">Caracas Transportation</p>
+              <p className="text-sm text-white/90">YMD Lanes</p>
+              <p className="text-sm text-white/90">SolarDust LLC</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
