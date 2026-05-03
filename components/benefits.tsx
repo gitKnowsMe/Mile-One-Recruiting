@@ -11,7 +11,7 @@ interface BenefitItem {
 const benefits: BenefitItem[] = [
   {
     title: 'Competitive Pay',
-    description: 'Earn $100K+ in your first year. Top earners make well over $100K annually.',
+    description: 'Earn $2,500–$3,000 per week. Top earners exceed this with experience and performance.',
     icon: '💰',
   },
   {
