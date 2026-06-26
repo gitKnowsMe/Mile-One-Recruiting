@@ -74,11 +74,11 @@ export function Hero() {
           </div>
 
           <div className="mt-10">
-            <p className="text-xs text-white/70 uppercase tracking-wider font-semibold mb-3">Partner Carriers</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <p className="text-sm text-white/90">Caracas Transportation</p>
-              <p className="text-sm text-white/90">YMD Lanes</p>
-              <p className="text-sm text-white/90">SolarDust LLC</p>
+            <p className="text-sm text-accent uppercase tracking-wider font-bold mb-4">Partner Carriers</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <p className="text-lg sm:text-xl font-bold text-white">Caracas Transportation</p>
+              <p className="text-lg sm:text-xl font-bold text-white">YMD Lanes</p>
+              <p className="text-lg sm:text-xl font-bold text-white">SolarDust LLC</p>
             </div>
           </div>
         </div>
