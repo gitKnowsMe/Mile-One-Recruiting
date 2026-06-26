@@ -17,7 +17,7 @@ export function Hero() {
           src="/hero-truck.png"
           alt="Flatbed truck on open highway"
           fill
-          className="object-cover"
+          className="object-cover object-[80%_center]"
           priority
         />
         {/* Dark overlay for text readability */}
