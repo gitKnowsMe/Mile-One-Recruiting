@@ -12,12 +12,12 @@ export function Hero() {
   return (
     <section className="relative w-full min-h-screen flex items-center overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-black">
         <Image
           src="/hero-truck.png"
           alt="Flatbed truck on open highway"
           fill
-          className="object-cover object-center"
+          className="object-contain object-center"
           priority
         />
         {/* Dark overlay for text readability */}
