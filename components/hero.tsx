@@ -38,7 +38,7 @@ export function Hero() {
           </h1>
 
           <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-xl leading-relaxed">
-            Join Open Mile Recruiting and earn competitive pay driving premium flatbed OTR routes. Training programs, steady work, and opportunities for professional truck drivers.
+            Join Mile One Recruiting and earn competitive pay driving premium flatbed OTR routes. Training programs, steady work, and opportunities for professional truck drivers.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">

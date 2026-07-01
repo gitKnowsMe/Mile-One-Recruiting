@@ -47,7 +47,7 @@ export function Benefits() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-foreground text-balance">
-            Why Join Open Mile
+            Why Join Mile One
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             We offer more than just a job—we offer a career with benefits that matter to you and your family.

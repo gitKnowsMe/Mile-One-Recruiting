@@ -15,7 +15,7 @@ export function CTA() {
           Don&apos;t Wait—Start Your Journey Today
         </h2>
         <p className="text-lg sm:text-xl mb-8 max-w-2xl mx-auto opacity-90 leading-relaxed">
-          Opportunities are waiting for qualified CDL drivers. Apply now and join hundreds of professional drivers earning top-tier pay with Open Mile Recruiting.
+          Opportunities are waiting for qualified CDL drivers. Apply now and join hundreds of professional drivers earning top-tier pay with Mile One Recruiting.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -31,7 +31,7 @@ export function CTA() {
             size="lg"
             className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
           >
-            Call: 1-800-OPENMILE
+            Call: 1-800-MILEONE
           </Button>
         </div>
 
