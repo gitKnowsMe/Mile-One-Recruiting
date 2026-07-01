@@ -34,7 +34,7 @@ export function Hero() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight text-balance">
-            Your Open Road Starts Here
+            Your Mile One Starts Here
           </h1>
 
           <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-xl leading-relaxed">
