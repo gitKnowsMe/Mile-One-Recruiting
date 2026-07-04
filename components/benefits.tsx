@@ -21,7 +21,7 @@ const benefits: BenefitItem[] = [
   },
   {
     title: 'Home Time',
-    description: 'Expect home time every 2–3 weeks. Your life and family matter.',
+    description: 'Expect home time every 2–3 weeks. If loads to your home location are scarce after 3 weeks on the road, we pay for your flight home. Your life and family matter.',
     icon: '🏠',
   },
   {
