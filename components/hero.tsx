@@ -74,7 +74,10 @@ export function Hero() {
           </div>
 
           <div className="mt-10">
-            <p className="text-lg sm:text-xl text-white uppercase tracking-widest font-extrabold mb-4">Partner Carriers</p>
+            <p className="text-lg sm:text-xl text-white uppercase tracking-widest font-extrabold mb-2">Partner Carriers</p>
+            <p className="text-sm sm:text-base text-white/90 mb-4 max-w-xl leading-relaxed">
+              We partner with these trusted carriers to place you on the best routes.
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <p className="text-lg sm:text-xl font-bold text-accent">Caracas Transportation</p>
               <p className="text-lg sm:text-xl font-bold text-accent">YMD Lanes</p>
