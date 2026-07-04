@@ -50,7 +50,7 @@ export function Benefits() {
             Why Join Mile One
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            We offer more than just a job—we offer a career with benefits that matter to you and your family.
+            Our goal is to connect and match hard-working drivers to the top-paying carriers. We offer more than just a job—we offer a career with benefits that matter to you and your family.
           </p>
         </div>
 
