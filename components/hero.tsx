@@ -21,7 +21,8 @@ export function Hero() {
           priority
         />
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/55 to-black/25" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Content */}
