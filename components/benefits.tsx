@@ -11,7 +11,7 @@ interface BenefitItem {
 const benefits: BenefitItem[] = [
   {
     title: 'Competitive Pay',
-    description: 'Earn $2,500–$3,500 per week. As a subcontractor you have a say in every load and can control your earnings easier.',
+    description: 'Earn $2,500–$3,500 per week. Either as a subcontractor where you have a say in every load, or a paid-by-mile driver where you can control your miles and earnings easier.',
     icon: '💰',
   },
   {
