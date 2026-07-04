@@ -78,10 +78,22 @@ export function Hero() {
             <p className="text-sm sm:text-base text-white/90 mb-4 max-w-xl leading-relaxed">
               We partner with these trusted carriers to place you on the best routes.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <p className="text-lg sm:text-xl font-bold text-accent">Caracas Transportation</p>
-              <p className="text-lg sm:text-xl font-bold text-accent">YMD Lanes</p>
-              <p className="text-lg sm:text-xl font-bold text-accent">SolarDust LLC</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="bg-white rounded-lg p-2 h-20 w-32 flex items-center justify-center shadow-md">
+                <Image
+                  src="/carriers/caracas-transportation.jpeg"
+                  alt="Caracas Transportation Inc logo"
+                  width={112}
+                  height={64}
+                  className="max-h-16 w-auto object-contain"
+                />
+              </div>
+              <div className="bg-white rounded-lg p-2 h-20 w-32 flex items-center justify-center shadow-md">
+                <span className="text-lg font-extrabold text-slate-800 text-center leading-tight">YMD Lanes</span>
+              </div>
+              <div className="bg-white rounded-lg p-2 h-20 w-32 flex items-center justify-center shadow-md">
+                <span className="text-lg font-extrabold text-slate-800 text-center leading-tight">SolarDust LLC</span>
+              </div>
             </div>
           </div>
         </div>
