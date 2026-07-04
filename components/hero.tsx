@@ -20,9 +20,8 @@ export function Hero() {
           className="object-cover object-center"
           priority
         />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/55 to-black/25" />
-        <div className="absolute inset-0 bg-black/20" />
+        {/* Dark overlay for text readability - fades out before the cab */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 via-50% to-transparent" />
       </div>
 
       {/* Content */}
