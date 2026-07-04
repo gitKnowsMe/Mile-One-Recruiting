@@ -88,11 +88,11 @@ export function Hero() {
                   className="h-full w-full object-contain"
                 />
               </div>
-              <div className="bg-white rounded-lg p-2 h-20 w-32 flex items-center justify-center shadow-md">
-                <span className="text-lg font-extrabold text-slate-800 text-center leading-tight">YMD Lanes</span>
+              <div className="bg-white rounded-lg p-2 h-20 w-20 flex items-center justify-center shadow-md">
+                <span className="text-sm font-extrabold text-slate-800 text-center leading-tight">YMD Lanes</span>
               </div>
-              <div className="bg-white rounded-lg p-2 h-20 w-32 flex items-center justify-center shadow-md">
-                <span className="text-lg font-extrabold text-slate-800 text-center leading-tight">SolarDust LLC</span>
+              <div className="bg-white rounded-lg p-2 h-20 w-20 flex items-center justify-center shadow-md">
+                <span className="text-sm font-extrabold text-slate-800 text-center leading-tight">SolarDust LLC</span>
               </div>
             </div>
           </div>
