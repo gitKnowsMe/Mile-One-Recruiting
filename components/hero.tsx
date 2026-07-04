@@ -79,13 +79,13 @@ export function Hero() {
               We partner with these trusted carriers to place you on the best routes.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <div className="h-20 w-32 flex items-center justify-center overflow-hidden rounded-lg">
+              <div className="bg-white rounded-lg h-20 w-20 flex items-center justify-center overflow-hidden shadow-md">
                 <Image
                   src="/carriers/caracas-transportation.jpeg"
                   alt="Caracas Transportation Inc logo"
-                  width={128}
+                  width={80}
                   height={80}
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-cover"
                 />
               </div>
               <div className="bg-white rounded-lg p-2 h-20 w-20 flex items-center justify-center shadow-md">
