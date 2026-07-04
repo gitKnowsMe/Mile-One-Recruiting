@@ -20,8 +20,14 @@ export function Hero() {
           className="object-cover object-center"
           priority
         />
-        {/* Dark overlay for text readability - fades out before the cab */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 via-50% to-transparent" />
+        {/* Subtle vignette behind the text zone only */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 55% 75% at 22% 50%, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0) 75%)',
+          }}
+        />
       </div>
 
       {/* Content */}
