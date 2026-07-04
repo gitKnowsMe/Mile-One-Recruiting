@@ -16,7 +16,7 @@ const benefits: BenefitItem[] = [
   },
   {
     title: 'Paid Training ($500/week)',
-    description: 'Comprehensive CDL training programs for new and experienced drivers — and you get paid while you learn.',
+    description: 'Hands-on CDL training plus specialized flatbed load securement and flatbed safety instruction — and you get paid while you learn.',
     icon: '🎓',
   },
   {
