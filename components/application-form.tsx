@@ -12,10 +12,14 @@ interface FormData {
   email: string
   phone: string
   yearsExperience: string
+  trailerType: string
   currentCDL: boolean
   cdlPhoto: File | null
   medicalCardPhoto: File | null
 }
+
+const isWaitlist = (trailerType: string) =>
+  trailerType === 'reefer' || trailerType === 'dry-van'
 
 export function ApplicationForm() {
   const [formData, setFormData] = useState<FormData>({
@@ -24,12 +28,14 @@ export function ApplicationForm() {
     email: '',
     phone: '',
     yearsExperience: '',
+    trailerType: '',
     currentCDL: false,
     cdlPhoto: null,
     medicalCardPhoto: null,
   })
 
   const [submitted, setSubmitted] = useState(false)
+  const [submittedAsWaitlist, setSubmittedAsWaitlist] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (
@@ -72,6 +78,8 @@ export function ApplicationForm() {
       data.append('email', formData.email)
       data.append('phone', formData.phone)
       data.append('yearsExperience', formData.yearsExperience)
+      data.append('trailerType', formData.trailerType)
+      data.append('emailTemplate', isWaitlist(formData.trailerType) ? 'waitlist' : 'standard')
       data.append('currentCDL', String(formData.currentCDL))
       if (formData.cdlPhoto) {
         data.append('cdlPhoto', formData.cdlPhoto)
@@ -83,6 +91,7 @@ export function ApplicationForm() {
       // Since we're not using a backend, just simulate success
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
+      setSubmittedAsWaitlist(isWaitlist(formData.trailerType))
       setSubmitted(true)
       setFormData({
         firstName: '',
@@ -90,6 +99,7 @@ export function ApplicationForm() {
         email: '',
         phone: '',
         yearsExperience: '',
+        trailerType: '',
         currentCDL: false,
         cdlPhoto: null,
         medicalCardPhoto: null,
@@ -119,9 +129,17 @@ export function ApplicationForm() {
         <Card className="p-8 sm:p-12 bg-card border-border shadow-lg">
           {submitted && (
             <div className="mb-8 p-4 bg-green-100 border border-green-300 rounded-lg">
-              <p className="text-green-800 font-semibold">
-                ✓ Application submitted! We&apos;ll be in touch within 24 hours.
-              </p>
+              {submittedAsWaitlist ? (
+                <p className="text-green-800 font-semibold">
+                  ✓ Thanks for applying! We don&apos;t have current openings for dry van or reefer
+                  positions — our recruiting is focused on flatbed right now. We&apos;ll keep your
+                  application on file and reach out if that changes.
+                </p>
+              ) : (
+                <p className="text-green-800 font-semibold">
+                  ✓ Thanks for applying! Our recruiting team will be in touch shortly about flatbed openings.
+                </p>
+              )}
             </div>
           )}
 
@@ -207,6 +225,30 @@ export function ApplicationForm() {
                 <option value="5-10">5-10 years</option>
                 <option value="10+">10+ years</option>
               </select>
+            </FieldGroup>
+
+            {/* Trailer Type */}
+            <FieldGroup>
+              <FieldLabel htmlFor="trailerType">Trailer Type *</FieldLabel>
+              <select
+                id="trailerType"
+                name="trailerType"
+                value={formData.trailerType}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Select trailer type</option>
+                <option value="flatbed">Flatbed</option>
+                <option value="reefer">Reefer</option>
+                <option value="dry-van">Dry Van</option>
+              </select>
+              {isWaitlist(formData.trailerType) && (
+                <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  Heads up — we&apos;re currently only hiring for flatbed positions. You&apos;re
+                  welcome to apply anyway and we&apos;ll keep you on file.
+                </p>
+              )}
             </FieldGroup>
 
             {/* CDL Status */}
