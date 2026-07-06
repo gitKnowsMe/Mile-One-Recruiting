@@ -200,6 +200,7 @@ export function ApplicationForm() {
                 className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">Select experience level</option>
+                <option value="new-grad">New Grad — No Experience</option>
                 <option value="0-1">0-1 years</option>
                 <option value="1-3">1-3 years</option>
                 <option value="3-5">3-5 years</option>
