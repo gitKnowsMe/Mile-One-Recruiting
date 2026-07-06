@@ -14,6 +14,7 @@ interface FormData {
   yearsExperience: string
   currentCDL: boolean
   cdlPhoto: File | null
+  medicalCardPhoto: File | null
 }
 
 export function ApplicationForm() {
@@ -23,8 +24,9 @@ export function ApplicationForm() {
     email: '',
     phone: '',
     yearsExperience: '',
-    currentCDL: true,
+    currentCDL: false,
     cdlPhoto: null,
+    medicalCardPhoto: null,
   })
 
   const [submitted, setSubmitted] = useState(false)
@@ -48,11 +50,12 @@ export function ApplicationForm() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name } = e.target
     const file = e.target.files?.[0]
     if (file) {
       setFormData((prev) => ({
         ...prev,
-        cdlPhoto: file,
+        [name]: file,
       }))
     }
   }
@@ -73,6 +76,9 @@ export function ApplicationForm() {
       if (formData.cdlPhoto) {
         data.append('cdlPhoto', formData.cdlPhoto)
       }
+      if (formData.medicalCardPhoto) {
+        data.append('medicalCardPhoto', formData.medicalCardPhoto)
+      }
 
       // Since we're not using a backend, just simulate success
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -84,8 +90,9 @@ export function ApplicationForm() {
         email: '',
         phone: '',
         yearsExperience: '',
-        currentCDL: true,
+        currentCDL: false,
         cdlPhoto: null,
+        medicalCardPhoto: null,
       })
 
       // Reset success message after 5 seconds
@@ -217,39 +224,76 @@ export function ApplicationForm() {
               </label>
             </div>
 
-            {/* CDL Photo Upload */}
+            {/* CDL & Medical Card Photo Uploads */}
             {formData.currentCDL && (
-              <FieldGroup>
-                <FieldLabel htmlFor="cdlPhoto">
-                  CDL Photo Upload
-                </FieldLabel>
-                <input
-                  id="cdlPhoto"
-                  name="cdlPhoto"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-muted-foreground
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-primary file:text-primary-foreground
-                    hover:file:bg-primary/90
-                    cursor-pointer"
-                />
-                {formData.cdlPhoto && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    ✓ {formData.cdlPhoto.name} selected
+              <div className="space-y-6">
+                <FieldGroup>
+                  <FieldLabel htmlFor="cdlPhoto">CDL Photo Upload *</FieldLabel>
+                  <input
+                    id="cdlPhoto"
+                    name="cdlPhoto"
+                    type="file"
+                    accept="image/*,.pdf"
+                    required
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-muted-foreground
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-primary file:text-primary-foreground
+                      hover:file:bg-primary/90
+                      cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    JPG, PNG, or PDF — max 10MB
                   </p>
-                )}
-              </FieldGroup>
+                  {formData.cdlPhoto && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ✓ {formData.cdlPhoto.name} selected
+                    </p>
+                  )}
+                </FieldGroup>
+
+                <FieldGroup>
+                  <FieldLabel htmlFor="medicalCardPhoto">Medical Card Photo Upload *</FieldLabel>
+                  <input
+                    id="medicalCardPhoto"
+                    name="medicalCardPhoto"
+                    type="file"
+                    accept="image/*,.pdf"
+                    required
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-muted-foreground
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-primary file:text-primary-foreground
+                      hover:file:bg-primary/90
+                      cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    JPG, PNG, or PDF — max 10MB
+                  </p>
+                  {formData.medicalCardPhoto && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ✓ {formData.medicalCardPhoto.name} selected
+                    </p>
+                  )}
+                </FieldGroup>
+              </div>
             )}
+
+            {/* TCPA Consent */}
+            <p className="text-xs text-muted-foreground text-center">
+              By submitting this application, you agree to be contacted by phone, text, or email
+              regarding this opportunity. Message and data rates may apply.
+            </p>
 
             {/* Submit Button */}
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 text-lg"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-3 text-lg"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Application'}
             </Button>
