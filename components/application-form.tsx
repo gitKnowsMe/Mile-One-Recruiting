@@ -29,6 +29,7 @@ export function ApplicationForm() {
     control,
     watch,
     reset,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
@@ -37,14 +38,14 @@ export function ApplicationForm() {
 
   const [submitted, setSubmitted] = useState(false)
   const [submittedAsWaitlist, setSubmittedAsWaitlist] = useState(false)
-  const [submitError, setSubmitError] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const trailerType = watch('trailerType')
   const cdlPhoto = watch('cdlPhoto')
   const medicalCardPhoto = watch('medicalCardPhoto')
 
   const onSubmit = async (values: ApplicationFormValues) => {
-    setSubmitError(false)
+    setSubmitError(null)
 
     try {
       const data = new FormData()
@@ -62,11 +63,24 @@ export function ApplicationForm() {
         body: data,
       })
 
-      if (!response.ok) {
-        throw new Error('Application submission failed')
-      }
+      const result = await response.json()
 
-      const result = (await response.json()) as { isWaitlist: boolean }
+      if (!response.ok) {
+        const fieldErrors = result?.errors as Record<string, string[]> | undefined
+        console.error('Application submission failed:', fieldErrors)
+
+        if (fieldErrors) {
+          for (const [field, messages] of Object.entries(fieldErrors)) {
+            if (field === '_form') continue
+            setError(field as keyof ApplicationFormValues, { message: messages[0] })
+          }
+        }
+
+        setSubmitError(
+          fieldErrors?._form?.[0] ?? 'Please fix the highlighted fields and try again.'
+        )
+        return
+      }
 
       setSubmittedAsWaitlist(result.isWaitlist)
       setSubmitted(true)
@@ -76,7 +90,7 @@ export function ApplicationForm() {
       setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Form submission error:', error)
-      setSubmitError(true)
+      setSubmitError('Something went wrong submitting your application. Please try again.')
     }
   }
 
@@ -111,9 +125,7 @@ export function ApplicationForm() {
 
           {submitError && (
             <div className="mb-8 p-4 bg-red-100 border border-red-300 rounded-lg">
-              <p className="text-red-800 font-semibold">
-                Something went wrong submitting your application. Please try again.
-              </p>
+              <p className="text-red-800 font-semibold">{submitError}</p>
             </div>
           )}
 

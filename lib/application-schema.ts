@@ -8,14 +8,22 @@ export const isWaitlistTrailerType = (trailerType: string) =>
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
+// Browsers are inconsistent about what `file.type` reports for HEIC/HEIF
+// (iPhone's default camera format) — some report it correctly, some report
+// an empty string. Fall back to the file extension so iPhone uploads aren't
+// rejected just because the browser didn't sniff a MIME type.
+const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif', '.pdf']
+
+const isAcceptedFile = (file: File) =>
+  file.type.startsWith('image/') ||
+  file.type === 'application/pdf' ||
+  ACCEPTED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext))
+
 const requiredFileSchema = (requiredMessage: string) =>
   z
     .instanceof(File, { message: requiredMessage })
     .refine((file) => file.size <= MAX_FILE_SIZE, 'File must be 10MB or smaller')
-    .refine(
-      (file) => file.type.startsWith('image/') || file.type === 'application/pdf',
-      'File must be an image or PDF'
-    )
+    .refine(isAcceptedFile, 'File must be an image or PDF')
 
 const yearsExperienceSchema = z
   .string()
