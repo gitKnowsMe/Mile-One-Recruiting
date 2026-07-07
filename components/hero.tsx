@@ -53,8 +53,9 @@ export function Hero() {
               variant="outline"
               size="lg"
               className="bg-white/10 border-white text-white hover:bg-white/20"
+              asChild
             >
-              Learn More
+              <a href="mailto:mile1recruiting@gmail.com">Email Us</a>
             </Button>
           </div>
 

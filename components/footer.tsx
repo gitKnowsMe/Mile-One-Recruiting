@@ -47,16 +47,11 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-sm opacity-80">
               <li>
-                <a href="tel:1-800-6453663" className="hover:text-accent transition-colors">
-                  1-800-MILEONE
-                </a>
-              </li>
-              <li>
                 <a
-                  href="mailto:recruit@mileone.com"
+                  href="mailto:mile1recruiting@gmail.com"
                   className="hover:text-accent transition-colors"
                 >
-                  recruit@mileone.com
+                  mile1recruiting@gmail.com
                 </a>
               </li>
               <li>Available 24/7</li>

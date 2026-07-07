@@ -27,17 +27,17 @@ export function CTA() {
             Apply Now
           </Button>
           <Button
-            variant="outline"
             size="lg"
-            className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+            asChild
           >
-            Call: 1-800-MILEONE
+            <a href="mailto:mile1recruiting@gmail.com">Email Us</a>
           </Button>
         </div>
 
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
-            <p className="text-3xl sm:text-4xl font-bold text-accent mb-2">500+</p>
+            <p className="text-3xl sm:text-4xl font-bold text-accent mb-2">108+</p>
             <p className="opacity-90">Active Drivers</p>
           </div>
           <div>
