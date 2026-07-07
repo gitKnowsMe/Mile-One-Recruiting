@@ -1,116 +1,91 @@
 'use client'
 
 import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { Field, FieldLabel, FieldGroup } from '@/components/ui/field'
+import { Field, FieldLabel, FieldGroup, FieldError } from '@/components/ui/field'
+import {
+  applicationSchema,
+  isWaitlistTrailerType,
+  type ApplicationFormValues,
+} from '@/lib/application-schema'
 
-interface FormData {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  yearsExperience: string
-  trailerType: string
-  currentCDL: boolean
-  cdlPhoto: File | null
-  medicalCardPhoto: File | null
+const defaultValues: ApplicationFormValues = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  yearsExperience: '',
+  trailerType: '',
+  currentCDL: false,
+  cdlPhoto: null,
+  medicalCardPhoto: null,
 }
 
-const isWaitlist = (trailerType: string) =>
-  trailerType === 'reefer' || trailerType === 'dry-van'
-
 export function ApplicationForm() {
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    yearsExperience: '',
-    trailerType: '',
-    currentCDL: false,
-    cdlPhoto: null,
-    medicalCardPhoto: null,
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ApplicationFormValues>({
+    resolver: zodResolver(applicationSchema),
+    defaultValues,
   })
 
   const [submitted, setSubmitted] = useState(false)
   const [submittedAsWaitlist, setSubmittedAsWaitlist] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target
-    if (type === 'checkbox') {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: (e.target as HTMLInputElement).checked,
-      }))
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }))
-    }
-  }
+  const currentCDL = watch('currentCDL')
+  const trailerType = watch('trailerType')
+  const cdlPhoto = watch('cdlPhoto')
+  const medicalCardPhoto = watch('medicalCardPhoto')
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name } = e.target
-    const file = e.target.files?.[0]
-    if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: file,
-      }))
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  const onSubmit = async (values: ApplicationFormValues) => {
+    setSubmitError(false)
 
     try {
-      // Create FormData object for multipart submission
       const data = new FormData()
-      data.append('firstName', formData.firstName)
-      data.append('lastName', formData.lastName)
-      data.append('email', formData.email)
-      data.append('phone', formData.phone)
-      data.append('yearsExperience', formData.yearsExperience)
-      data.append('trailerType', formData.trailerType)
-      data.append('emailTemplate', isWaitlist(formData.trailerType) ? 'waitlist' : 'standard')
-      data.append('currentCDL', String(formData.currentCDL))
-      if (formData.cdlPhoto) {
-        data.append('cdlPhoto', formData.cdlPhoto)
+      data.append('firstName', values.firstName)
+      data.append('lastName', values.lastName)
+      data.append('email', values.email)
+      data.append('phone', values.phone)
+      data.append('yearsExperience', values.yearsExperience)
+      data.append('trailerType', values.trailerType)
+      data.append('currentCDL', String(values.currentCDL))
+      if (values.cdlPhoto) {
+        data.append('cdlPhoto', values.cdlPhoto)
       }
-      if (formData.medicalCardPhoto) {
-        data.append('medicalCardPhoto', formData.medicalCardPhoto)
+      if (values.medicalCardPhoto) {
+        data.append('medicalCardPhoto', values.medicalCardPhoto)
       }
 
-      // Since we're not using a backend, just simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setSubmittedAsWaitlist(isWaitlist(formData.trailerType))
-      setSubmitted(true)
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        yearsExperience: '',
-        trailerType: '',
-        currentCDL: false,
-        cdlPhoto: null,
-        medicalCardPhoto: null,
+      const response = await fetch('/api/apply', {
+        method: 'POST',
+        body: data,
       })
+
+      if (!response.ok) {
+        throw new Error('Application submission failed')
+      }
+
+      const result = (await response.json()) as { isWaitlist: boolean }
+
+      setSubmittedAsWaitlist(result.isWaitlist)
+      setSubmitted(true)
+      reset(defaultValues)
 
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Form submission error:', error)
-    } finally {
-      setIsSubmitting(false)
+      setSubmitError(true)
     }
   }
 
@@ -143,35 +118,39 @@ export function ApplicationForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {submitError && (
+            <div className="mb-8 p-4 bg-red-100 border border-red-300 rounded-lg">
+              <p className="text-red-800 font-semibold">
+                Something went wrong submitting your application. Please try again.
+              </p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Name Row */}
             <div className="grid sm:grid-cols-2 gap-6">
               <FieldGroup>
                 <FieldLabel htmlFor="firstName">First Name *</FieldLabel>
                 <Input
                   id="firstName"
-                  name="firstName"
                   type="text"
                   placeholder="John"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
                   className="w-full"
+                  {...register('firstName')}
                 />
+                <FieldError errors={errors.firstName ? [errors.firstName] : undefined} />
               </FieldGroup>
 
               <FieldGroup>
                 <FieldLabel htmlFor="lastName">Last Name *</FieldLabel>
                 <Input
                   id="lastName"
-                  name="lastName"
                   type="text"
                   placeholder="Smith"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
                   className="w-full"
+                  {...register('lastName')}
                 />
+                <FieldError errors={errors.lastName ? [errors.lastName] : undefined} />
               </FieldGroup>
             </div>
 
@@ -181,28 +160,24 @@ export function ApplicationForm() {
                 <FieldLabel htmlFor="email">Email *</FieldLabel>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
                   placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
                   className="w-full"
+                  {...register('email')}
                 />
+                <FieldError errors={errors.email ? [errors.email] : undefined} />
               </FieldGroup>
 
               <FieldGroup>
                 <FieldLabel htmlFor="phone">Phone Number *</FieldLabel>
                 <Input
                   id="phone"
-                  name="phone"
                   type="tel"
                   placeholder="(555) 123-4567"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
                   className="w-full"
+                  {...register('phone')}
                 />
+                <FieldError errors={errors.phone ? [errors.phone] : undefined} />
               </FieldGroup>
             </div>
 
@@ -211,11 +186,8 @@ export function ApplicationForm() {
               <FieldLabel htmlFor="yearsExperience">Years of Driving Experience *</FieldLabel>
               <select
                 id="yearsExperience"
-                name="yearsExperience"
-                value={formData.yearsExperience}
-                onChange={handleInputChange}
-                required
                 className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                {...register('yearsExperience')}
               >
                 <option value="">Select experience level</option>
                 <option value="new-grad">New Grad — No Experience</option>
@@ -225,6 +197,7 @@ export function ApplicationForm() {
                 <option value="5-10">5-10 years</option>
                 <option value="10+">10+ years</option>
               </select>
+              <FieldError errors={errors.yearsExperience ? [errors.yearsExperience] : undefined} />
             </FieldGroup>
 
             {/* Trailer Type */}
@@ -232,18 +205,16 @@ export function ApplicationForm() {
               <FieldLabel htmlFor="trailerType">Trailer Type *</FieldLabel>
               <select
                 id="trailerType"
-                name="trailerType"
-                value={formData.trailerType}
-                onChange={handleInputChange}
-                required
                 className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                {...register('trailerType')}
               >
                 <option value="">Select trailer type</option>
                 <option value="flatbed">Flatbed</option>
                 <option value="reefer">Reefer</option>
                 <option value="dry-van">Dry Van</option>
               </select>
-              {isWaitlist(formData.trailerType) && (
+              <FieldError errors={errors.trailerType ? [errors.trailerType] : undefined} />
+              {isWaitlistTrailerType(trailerType) && (
                 <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                   Heads up — we&apos;re currently only hiring for flatbed positions. You&apos;re
                   welcome to apply anyway and we&apos;ll keep you on file.
@@ -256,10 +227,8 @@ export function ApplicationForm() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  name="currentCDL"
-                  checked={formData.currentCDL}
-                  onChange={handleInputChange}
                   className="w-5 h-5 rounded border-input cursor-pointer"
+                  {...register('currentCDL')}
                 />
                 <span className="text-foreground font-medium">
                   I currently have a valid CDL
@@ -268,60 +237,76 @@ export function ApplicationForm() {
             </div>
 
             {/* CDL & Medical Card Photo Uploads */}
-            {formData.currentCDL && (
+            {currentCDL && (
               <div className="space-y-6">
                 <FieldGroup>
                   <FieldLabel htmlFor="cdlPhoto">CDL Photo Upload *</FieldLabel>
-                  <input
-                    id="cdlPhoto"
+                  <Controller
+                    control={control}
                     name="cdlPhoto"
-                    type="file"
-                    accept="image/*,.pdf"
-                    required
-                    onChange={handleFileChange}
-                    className="block w-full text-sm text-muted-foreground
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-lg file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-primary file:text-primary-foreground
-                      hover:file:bg-primary/90
-                      cursor-pointer"
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                      <input
+                        id="cdlPhoto"
+                        name={name}
+                        ref={ref}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onBlur={onBlur}
+                        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-muted-foreground
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-primary file:text-primary-foreground
+                          hover:file:bg-primary/90
+                          cursor-pointer"
+                      />
+                    )}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     JPG, PNG, or PDF — max 10MB
                   </p>
-                  {formData.cdlPhoto && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      ✓ {formData.cdlPhoto.name} selected
-                    </p>
+                  {cdlPhoto && (
+                    <p className="text-sm text-muted-foreground mt-1">✓ {cdlPhoto.name} selected</p>
                   )}
+                  <FieldError errors={errors.cdlPhoto ? [errors.cdlPhoto] : undefined} />
                 </FieldGroup>
 
                 <FieldGroup>
                   <FieldLabel htmlFor="medicalCardPhoto">Medical Card Photo Upload *</FieldLabel>
-                  <input
-                    id="medicalCardPhoto"
+                  <Controller
+                    control={control}
                     name="medicalCardPhoto"
-                    type="file"
-                    accept="image/*,.pdf"
-                    required
-                    onChange={handleFileChange}
-                    className="block w-full text-sm text-muted-foreground
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-lg file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-primary file:text-primary-foreground
-                      hover:file:bg-primary/90
-                      cursor-pointer"
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                      <input
+                        id="medicalCardPhoto"
+                        name={name}
+                        ref={ref}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onBlur={onBlur}
+                        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-muted-foreground
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-primary file:text-primary-foreground
+                          hover:file:bg-primary/90
+                          cursor-pointer"
+                      />
+                    )}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     JPG, PNG, or PDF — max 10MB
                   </p>
-                  {formData.medicalCardPhoto && (
+                  {medicalCardPhoto && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      ✓ {formData.medicalCardPhoto.name} selected
+                      ✓ {medicalCardPhoto.name} selected
                     </p>
                   )}
+                  <FieldError
+                    errors={errors.medicalCardPhoto ? [errors.medicalCardPhoto] : undefined}
+                  />
                 </FieldGroup>
               </div>
             )}
