@@ -45,14 +45,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const cdlBlob = await put(`applications/cdl-${data.cdlPhoto.name}`, data.cdlPhoto, {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: true,
     })
 
     const medicalCardBlob = await put(
       `applications/medical-${data.medicalCardPhoto.name}`,
       data.medicalCardPhoto,
-      { access: 'public', addRandomSuffix: true }
+      { access: 'private', addRandomSuffix: true }
     )
 
     await db.insert(applications).values({
