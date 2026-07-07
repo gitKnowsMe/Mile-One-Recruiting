@@ -22,6 +22,7 @@ const defaultValues: ApplicationFormValues = {
   trailerType: '',
   currentCDL: false,
   cdlPhoto: null,
+  medicalCardPhoto: null,
 }
 
 export function ApplicationForm() {
@@ -44,6 +45,7 @@ export function ApplicationForm() {
   const currentCDL = watch('currentCDL')
   const trailerType = watch('trailerType')
   const cdlPhoto = watch('cdlPhoto')
+  const medicalCardPhoto = watch('medicalCardPhoto')
 
   const onSubmit = async (values: ApplicationFormValues) => {
     setSubmitError(false)
@@ -59,6 +61,9 @@ export function ApplicationForm() {
       data.append('currentCDL', String(values.currentCDL))
       if (values.cdlPhoto) {
         data.append('cdlPhoto', values.cdlPhoto)
+      }
+      if (values.medicalCardPhoto) {
+        data.append('medicalCardPhoto', values.medicalCardPhoto)
       }
 
       const response = await fetch('/api/apply', {
@@ -231,40 +236,79 @@ export function ApplicationForm() {
               </label>
             </div>
 
-            {/* CDL Photo Upload */}
+            {/* CDL & Medical Card Photo Uploads */}
             {currentCDL && (
-              <FieldGroup>
-                <FieldLabel htmlFor="cdlPhoto">CDL Photo Upload *</FieldLabel>
-                <Controller
-                  control={control}
-                  name="cdlPhoto"
-                  render={({ field: { onChange, onBlur, name, ref } }) => (
-                    <input
-                      id="cdlPhoto"
-                      name={name}
-                      ref={ref}
-                      type="file"
-                      accept="image/*,.pdf"
-                      onBlur={onBlur}
-                      onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-                      className="block w-full text-sm text-muted-foreground
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-lg file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-primary file:text-primary-foreground
-                        hover:file:bg-primary/90
-                        cursor-pointer"
-                    />
+              <div className="space-y-6">
+                <FieldGroup>
+                  <FieldLabel htmlFor="cdlPhoto">CDL Photo Upload *</FieldLabel>
+                  <Controller
+                    control={control}
+                    name="cdlPhoto"
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                      <input
+                        id="cdlPhoto"
+                        name={name}
+                        ref={ref}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onBlur={onBlur}
+                        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-muted-foreground
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-primary file:text-primary-foreground
+                          hover:file:bg-primary/90
+                          cursor-pointer"
+                      />
+                    )}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    JPG, PNG, or PDF — max 10MB
+                  </p>
+                  {cdlPhoto && (
+                    <p className="text-sm text-muted-foreground mt-1">✓ {cdlPhoto.name} selected</p>
                   )}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  JPG, PNG, or PDF — max 10MB
-                </p>
-                {cdlPhoto && (
-                  <p className="text-sm text-muted-foreground mt-1">✓ {cdlPhoto.name} selected</p>
-                )}
-                <FieldError errors={errors.cdlPhoto ? [errors.cdlPhoto] : undefined} />
-              </FieldGroup>
+                  <FieldError errors={errors.cdlPhoto ? [errors.cdlPhoto] : undefined} />
+                </FieldGroup>
+
+                <FieldGroup>
+                  <FieldLabel htmlFor="medicalCardPhoto">Medical Card Photo Upload *</FieldLabel>
+                  <Controller
+                    control={control}
+                    name="medicalCardPhoto"
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                      <input
+                        id="medicalCardPhoto"
+                        name={name}
+                        ref={ref}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onBlur={onBlur}
+                        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-muted-foreground
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-primary file:text-primary-foreground
+                          hover:file:bg-primary/90
+                          cursor-pointer"
+                      />
+                    )}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    JPG, PNG, or PDF — max 10MB
+                  </p>
+                  {medicalCardPhoto && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ✓ {medicalCardPhoto.name} selected
+                    </p>
+                  )}
+                  <FieldError
+                    errors={errors.medicalCardPhoto ? [errors.medicalCardPhoto] : undefined}
+                  />
+                </FieldGroup>
+              </div>
             )}
 
             {/* TCPA Consent */}

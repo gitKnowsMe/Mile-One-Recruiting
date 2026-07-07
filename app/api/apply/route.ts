@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     trailerType: formData.get('trailerType'),
     currentCDL: formData.get('currentCDL') === 'true',
     cdlPhoto: fileOrNull(formData.get('cdlPhoto')),
+    medicalCardPhoto: fileOrNull(formData.get('medicalCardPhoto')),
   })
 
   if (!parsed.success) {
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
   const isWaitlist = isWaitlistTrailerType(data.trailerType)
 
   let cdlPhotoUrl: string | null = null
+  let medicalCardPhotoUrl: string | null = null
 
   try {
     if (data.cdlPhoto) {
@@ -56,6 +58,15 @@ export async function POST(request: NextRequest) {
         addRandomSuffix: true,
       })
       cdlPhotoUrl = blob.url
+    }
+
+    if (data.medicalCardPhoto) {
+      const blob = await put(
+        `applications/medical-${data.medicalCardPhoto.name}`,
+        data.medicalCardPhoto,
+        { access: 'public', addRandomSuffix: true }
+      )
+      medicalCardPhotoUrl = blob.url
     }
 
     await db.insert(applications).values({
@@ -67,6 +78,7 @@ export async function POST(request: NextRequest) {
       trailerType: data.trailerType,
       currentCdl: data.currentCDL,
       cdlPhotoUrl,
+      medicalCardPhotoUrl,
       isWaitlist,
     })
   } catch (error) {

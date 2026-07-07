@@ -12,18 +12,19 @@ export const applications = pgTable(
     yearsExperience: text('years_experience').notNull(),
     trailerType: text('trailer_type').notNull(),
     currentCdl: boolean('current_cdl').notNull().default(false),
-    // Nullable because this is only required when currentCdl is true (e.g.
-    // "New Grad" applicants with no CDL yet legitimately have none) — the
+    // Nullable because these are only required when currentCdl is true (e.g.
+    // "New Grad" applicants with no CDL yet legitimately have neither) — the
     // check constraint below enforces that conditional requirement in the DB,
     // mirroring the zod superRefine in lib/application-schema.ts.
     cdlPhotoUrl: text('cdl_photo_url'),
+    medicalCardPhotoUrl: text('medical_card_photo_url'),
     isWaitlist: boolean('is_waitlist').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
-      'cdl_photo_required_when_current_cdl',
-      sql`${table.currentCdl} = false OR ${table.cdlPhotoUrl} IS NOT NULL`
+      'cdl_documents_required_when_current_cdl',
+      sql`${table.currentCdl} = false OR (${table.cdlPhotoUrl} IS NOT NULL AND ${table.medicalCardPhotoUrl} IS NOT NULL)`
     ),
   ]
 )

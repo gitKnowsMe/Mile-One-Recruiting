@@ -1,0 +1,3 @@
+ALTER TABLE "applications" DROP CONSTRAINT "cdl_photo_required_when_current_cdl";--> statement-breakpoint
+ALTER TABLE "applications" ADD COLUMN "medical_card_photo_url" text;--> statement-breakpoint
+ALTER TABLE "applications" ADD CONSTRAINT "cdl_documents_required_when_current_cdl" CHECK ("applications"."current_cdl" = false OR ("applications"."cdl_photo_url" IS NOT NULL AND "applications"."medical_card_photo_url" IS NOT NULL));

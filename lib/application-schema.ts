@@ -38,14 +38,24 @@ export const applicationSchema = z
     trailerType: trailerTypeSchema,
     currentCDL: z.boolean(),
     cdlPhoto: fileSchema.nullable().optional(),
+    medicalCardPhoto: fileSchema.nullable().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.currentCDL && !data.cdlPhoto) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'CDL photo is required',
-        path: ['cdlPhoto'],
-      })
+    if (data.currentCDL) {
+      if (!data.cdlPhoto) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'CDL photo is required',
+          path: ['cdlPhoto'],
+        })
+      }
+      if (!data.medicalCardPhoto) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Medical card photo is required',
+          path: ['medicalCardPhoto'],
+        })
+      }
     }
   })
 
