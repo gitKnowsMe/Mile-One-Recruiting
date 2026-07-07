@@ -19,10 +19,6 @@ function getResend() {
   return cachedResend
 }
 
-function fileOrNull(value: FormDataEntryValue | null): File | null {
-  return value instanceof File && value.size > 0 ? value : null
-}
-
 export async function POST(request: NextRequest) {
   const formData = await request.formData()
 
@@ -33,9 +29,8 @@ export async function POST(request: NextRequest) {
     phone: formData.get('phone'),
     yearsExperience: formData.get('yearsExperience'),
     trailerType: formData.get('trailerType'),
-    currentCDL: formData.get('currentCDL') === 'true',
-    cdlPhoto: fileOrNull(formData.get('cdlPhoto')),
-    medicalCardPhoto: fileOrNull(formData.get('medicalCardPhoto')),
+    cdlPhoto: formData.get('cdlPhoto'),
+    medicalCardPhoto: formData.get('medicalCardPhoto'),
   })
 
   if (!parsed.success) {
@@ -48,26 +43,17 @@ export async function POST(request: NextRequest) {
   const data = parsed.data
   const isWaitlist = isWaitlistTrailerType(data.trailerType)
 
-  let cdlPhotoUrl: string | null = null
-  let medicalCardPhotoUrl: string | null = null
-
   try {
-    if (data.cdlPhoto) {
-      const blob = await put(`applications/cdl-${data.cdlPhoto.name}`, data.cdlPhoto, {
-        access: 'public',
-        addRandomSuffix: true,
-      })
-      cdlPhotoUrl = blob.url
-    }
+    const cdlBlob = await put(`applications/cdl-${data.cdlPhoto.name}`, data.cdlPhoto, {
+      access: 'public',
+      addRandomSuffix: true,
+    })
 
-    if (data.medicalCardPhoto) {
-      const blob = await put(
-        `applications/medical-${data.medicalCardPhoto.name}`,
-        data.medicalCardPhoto,
-        { access: 'public', addRandomSuffix: true }
-      )
-      medicalCardPhotoUrl = blob.url
-    }
+    const medicalCardBlob = await put(
+      `applications/medical-${data.medicalCardPhoto.name}`,
+      data.medicalCardPhoto,
+      { access: 'public', addRandomSuffix: true }
+    )
 
     await db.insert(applications).values({
       firstName: data.firstName,
@@ -76,9 +62,8 @@ export async function POST(request: NextRequest) {
       phone: data.phone,
       yearsExperience: data.yearsExperience,
       trailerType: data.trailerType,
-      currentCdl: data.currentCDL,
-      cdlPhotoUrl,
-      medicalCardPhotoUrl,
+      cdlPhotoUrl: cdlBlob.url,
+      medicalCardPhotoUrl: medicalCardBlob.url,
       isWaitlist,
     })
   } catch (error) {
@@ -114,7 +99,7 @@ export async function POST(request: NextRequest) {
         from: fromAddress,
         to: notifyAddress,
         subject: `New ${isWaitlist ? 'waitlist' : 'flatbed'} application: ${data.firstName} ${data.lastName}`,
-        text: `${data.firstName} ${data.lastName}\n${data.email}\n${data.phone}\nExperience: ${data.yearsExperience}\nTrailer type: ${data.trailerType}\nHas CDL: ${data.currentCDL}`,
+        text: `${data.firstName} ${data.lastName}\n${data.email}\n${data.phone}\nExperience: ${data.yearsExperience}\nTrailer type: ${data.trailerType}`,
       })
     }
   } catch (error) {

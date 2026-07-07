@@ -15,6 +15,13 @@
       "when": 1783431046007,
       "tag": "0001_regular_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783433989749,
+      "tag": "0002_clever_northstar",
+      "breakpoints": true
     }
   ]
 }

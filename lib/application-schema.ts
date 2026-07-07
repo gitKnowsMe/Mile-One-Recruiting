@@ -8,13 +8,14 @@ export const isWaitlistTrailerType = (trailerType: string) =>
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
-const fileSchema = z
-  .instanceof(File)
-  .refine((file) => file.size <= MAX_FILE_SIZE, 'File must be 10MB or smaller')
-  .refine(
-    (file) => file.type.startsWith('image/') || file.type === 'application/pdf',
-    'File must be an image or PDF'
-  )
+const requiredFileSchema = (requiredMessage: string) =>
+  z
+    .instanceof(File, { message: requiredMessage })
+    .refine((file) => file.size <= MAX_FILE_SIZE, 'File must be 10MB or smaller')
+    .refine(
+      (file) => file.type.startsWith('image/') || file.type === 'application/pdf',
+      'File must be an image or PDF'
+    )
 
 const yearsExperienceSchema = z
   .string()
@@ -28,35 +29,17 @@ const trailerTypeSchema = z
     message: 'Select a trailer type',
   })
 
-export const applicationSchema = z
-  .object({
-    firstName: z.string().trim().min(1, 'First name is required'),
-    lastName: z.string().trim().min(1, 'Last name is required'),
-    email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
-    phone: z.string().trim().min(7, 'Enter a valid phone number'),
-    yearsExperience: yearsExperienceSchema,
-    trailerType: trailerTypeSchema,
-    currentCDL: z.boolean(),
-    cdlPhoto: fileSchema.nullable().optional(),
-    medicalCardPhoto: fileSchema.nullable().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.currentCDL) {
-      if (!data.cdlPhoto) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'CDL photo is required',
-          path: ['cdlPhoto'],
-        })
-      }
-      if (!data.medicalCardPhoto) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Medical card photo is required',
-          path: ['medicalCardPhoto'],
-        })
-      }
-    }
-  })
+export const applicationSchema = z.object({
+  firstName: z.string().trim().min(1, 'First name is required'),
+  lastName: z.string().trim().min(1, 'Last name is required'),
+  email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
+  phone: z.string().trim().min(7, 'Enter a valid phone number'),
+  yearsExperience: yearsExperienceSchema,
+  trailerType: trailerTypeSchema,
+  // Every applicant must hold a valid CDL to drive commercially, so both
+  // documents are always required.
+  cdlPhoto: requiredFileSchema('CDL photo is required'),
+  medicalCardPhoto: requiredFileSchema('Medical card photo is required'),
+})
 
 export type ApplicationFormValues = z.infer<typeof applicationSchema>
