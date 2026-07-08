@@ -95,11 +95,20 @@ export async function POST(request: NextRequest) {
 
     const notifyAddress = process.env.APPLICATIONS_NOTIFY_EMAIL
     if (notifyAddress) {
+      const [cdlBuffer, medicalCardBuffer] = await Promise.all([
+        data.cdlPhoto.arrayBuffer(),
+        data.medicalCardPhoto.arrayBuffer(),
+      ])
+
       await getResend().emails.send({
         from: fromAddress,
         to: notifyAddress,
         subject: `New ${isWaitlist ? 'waitlist' : 'flatbed'} application: ${data.firstName} ${data.lastName}`,
         text: `${data.firstName} ${data.lastName}\n${data.email}\n${data.phone}\nExperience: ${data.yearsExperience}\nTrailer type: ${data.trailerType}`,
+        attachments: [
+          { filename: data.cdlPhoto.name, content: Buffer.from(cdlBuffer) },
+          { filename: data.medicalCardPhoto.name, content: Buffer.from(medicalCardBuffer) },
+        ],
       })
     }
   } catch (error) {
