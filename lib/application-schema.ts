@@ -6,7 +6,11 @@ export const trailerTypeOptions = ['flatbed', 'reefer', 'dry-van'] as const
 export const isWaitlistTrailerType = (trailerType: string) =>
   trailerType === 'reefer' || trailerType === 'dry-van'
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
+// Vercel Blob accepts this alongside real MIME types so uploads aren't
+// rejected when a browser fails to sniff a type (see isAcceptedFile below).
+export const ACCEPTED_UPLOAD_CONTENT_TYPES = ['image/*', 'application/pdf', 'application/octet-stream']
 
 // Browsers are inconsistent about what `file.type` reports for HEIC/HEIF
 // (iPhone's default camera format) — some report it correctly, some report
@@ -25,6 +29,13 @@ const requiredFileSchema = (requiredMessage: string) =>
     .refine((file) => file.size <= MAX_FILE_SIZE, 'File must be 10MB or smaller')
     .refine(isAcceptedFile, 'File must be an image or PDF')
 
+const uploadedBlobUrlSchema = (pathPrefix: string, requiredMessage: string) =>
+  z
+    .string({ message: requiredMessage })
+    .trim()
+    .url(requiredMessage)
+    .refine((url) => url.includes(`/applications/${pathPrefix}-`), requiredMessage)
+
 const yearsExperienceSchema = z
   .string()
   .refine((value) => (yearsExperienceOptions as readonly string[]).includes(value), {
@@ -37,13 +48,19 @@ const trailerTypeSchema = z
     message: 'Select a trailer type',
   })
 
-export const applicationSchema = z.object({
+const baseApplicationFields = {
   firstName: z.string().trim().min(1, 'First name is required'),
   lastName: z.string().trim().min(1, 'Last name is required'),
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email'),
   phone: z.string().trim().min(7, 'Enter a valid phone number'),
   yearsExperience: yearsExperienceSchema,
   trailerType: trailerTypeSchema,
+}
+
+// Client-side form schema — validates the raw File objects the user picked,
+// before they're uploaded to Blob storage.
+export const applicationSchema = z.object({
+  ...baseApplicationFields,
   // Every applicant must hold a valid CDL to drive commercially, so both
   // documents are always required.
   cdlPhoto: requiredFileSchema('CDL photo is required'),
@@ -51,3 +68,16 @@ export const applicationSchema = z.object({
 })
 
 export type ApplicationFormValues = z.infer<typeof applicationSchema>
+
+// Server-side schema for POST /api/apply — by the time this request is made,
+// the photos have already been uploaded directly to Blob storage from the
+// browser (see /api/apply/upload), so the API only receives their URLs. This
+// keeps large photo uploads from ever passing through the serverless
+// function body, which has a hard 4.5MB platform limit.
+export const applicationApiSchema = z.object({
+  ...baseApplicationFields,
+  cdlPhotoUrl: uploadedBlobUrlSchema('cdl', 'CDL photo is required'),
+  medicalCardPhotoUrl: uploadedBlobUrlSchema('medical', 'Medical card photo is required'),
+})
+
+export type ApplicationApiValues = z.infer<typeof applicationApiSchema>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { upload } from '@vercel/blob/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -48,19 +49,34 @@ export function ApplicationForm() {
     setSubmitError(null)
 
     try {
-      const data = new FormData()
-      data.append('firstName', values.firstName)
-      data.append('lastName', values.lastName)
-      data.append('email', values.email)
-      data.append('phone', values.phone)
-      data.append('yearsExperience', values.yearsExperience)
-      data.append('trailerType', values.trailerType)
-      data.append('cdlPhoto', values.cdlPhoto)
-      data.append('medicalCardPhoto', values.medicalCardPhoto)
+      // Upload photos straight to Blob storage from the browser — phone
+      // camera photos routinely exceed the 4.5MB request body limit that
+      // Vercel's serverless functions enforce, so the files never pass
+      // through /api/apply itself.
+      const [cdlBlob, medicalCardBlob] = await Promise.all([
+        upload(`applications/cdl-${values.cdlPhoto.name}`, values.cdlPhoto, {
+          access: 'private',
+          handleUploadUrl: '/api/apply/upload',
+        }),
+        upload(`applications/medical-${values.medicalCardPhoto.name}`, values.medicalCardPhoto, {
+          access: 'private',
+          handleUploadUrl: '/api/apply/upload',
+        }),
+      ])
 
       const response = await fetch('/api/apply', {
         method: 'POST',
-        body: data,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phone: values.phone,
+          yearsExperience: values.yearsExperience,
+          trailerType: values.trailerType,
+          cdlPhotoUrl: cdlBlob.url,
+          medicalCardPhotoUrl: medicalCardBlob.url,
+        }),
       })
 
       const result = await response.json()

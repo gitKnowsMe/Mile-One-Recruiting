@@ -1,10 +1,10 @@
 import { createElement } from 'react'
 import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
+import { get } from '@vercel/blob'
 import { Resend } from 'resend'
 import { db } from '@/lib/db'
 import { applications } from '@/lib/db/schema'
-import { applicationSchema, isWaitlistTrailerType } from '@/lib/application-schema'
+import { applicationApiSchema, isWaitlistTrailerType } from '@/lib/application-schema'
 import { StandardConfirmationEmail } from '@/emails/standard-confirmation'
 import { WaitlistConfirmationEmail } from '@/emails/waitlist-confirmation'
 
@@ -19,19 +19,23 @@ function getResend() {
   return cachedResend
 }
 
-export async function POST(request: NextRequest) {
-  const formData = await request.formData()
+async function fetchBlobAttachment(url: string) {
+  try {
+    const result = await get(url, { access: 'private' })
+    if (!result || result.statusCode !== 200) return null
 
-  const parsed = applicationSchema.safeParse({
-    firstName: formData.get('firstName'),
-    lastName: formData.get('lastName'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    yearsExperience: formData.get('yearsExperience'),
-    trailerType: formData.get('trailerType'),
-    cdlPhoto: formData.get('cdlPhoto'),
-    medicalCardPhoto: formData.get('medicalCardPhoto'),
-  })
+    const buffer = Buffer.from(await new Response(result.stream).arrayBuffer())
+    return { filename: result.blob.pathname.split('/').pop() ?? 'attachment', content: buffer }
+  } catch (error) {
+    console.error('Failed to fetch blob attachment:', error)
+    return null
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+
+  const parsed = applicationApiSchema.safeParse(body)
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -44,17 +48,8 @@ export async function POST(request: NextRequest) {
   const isWaitlist = isWaitlistTrailerType(data.trailerType)
 
   try {
-    const cdlBlob = await put(`applications/cdl-${data.cdlPhoto.name}`, data.cdlPhoto, {
-      access: 'private',
-      addRandomSuffix: true,
-    })
-
-    const medicalCardBlob = await put(
-      `applications/medical-${data.medicalCardPhoto.name}`,
-      data.medicalCardPhoto,
-      { access: 'private', addRandomSuffix: true }
-    )
-
+    // Photos were already uploaded directly to Blob storage from the
+    // browser (see /api/apply/upload) — we just persist their URLs here.
     await db.insert(applications).values({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -62,8 +57,8 @@ export async function POST(request: NextRequest) {
       phone: data.phone,
       yearsExperience: data.yearsExperience,
       trailerType: data.trailerType,
-      cdlPhotoUrl: cdlBlob.url,
-      medicalCardPhotoUrl: medicalCardBlob.url,
+      cdlPhotoUrl: data.cdlPhotoUrl,
+      medicalCardPhotoUrl: data.medicalCardPhotoUrl,
       isWaitlist,
     })
   } catch (error) {
@@ -95,9 +90,9 @@ export async function POST(request: NextRequest) {
 
     const notifyAddress = process.env.APPLICATIONS_NOTIFY_EMAIL
     if (notifyAddress) {
-      const [cdlBuffer, medicalCardBuffer] = await Promise.all([
-        data.cdlPhoto.arrayBuffer(),
-        data.medicalCardPhoto.arrayBuffer(),
+      const [cdlAttachment, medicalCardAttachment] = await Promise.all([
+        fetchBlobAttachment(data.cdlPhotoUrl),
+        fetchBlobAttachment(data.medicalCardPhotoUrl),
       ])
 
       await getResend().emails.send({
@@ -105,10 +100,7 @@ export async function POST(request: NextRequest) {
         to: notifyAddress,
         subject: `New ${isWaitlist ? 'waitlist' : 'flatbed'} application: ${data.firstName} ${data.lastName}`,
         text: `${data.firstName} ${data.lastName}\n${data.email}\n${data.phone}\nExperience: ${data.yearsExperience}\nTrailer type: ${data.trailerType}`,
-        attachments: [
-          { filename: data.cdlPhoto.name, content: Buffer.from(cdlBuffer) },
-          { filename: data.medicalCardPhoto.name, content: Buffer.from(medicalCardBuffer) },
-        ],
+        attachments: [cdlAttachment, medicalCardAttachment].filter((a) => a !== null),
       })
     }
   } catch (error) {
