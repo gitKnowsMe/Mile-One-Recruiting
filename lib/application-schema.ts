@@ -36,6 +36,12 @@ const uploadedBlobUrlSchema = (pathPrefix: string, requiredMessage: string) =>
     .url(requiredMessage)
     .refine((url) => url.includes(`/applications/${pathPrefix}-`), requiredMessage)
 
+const requiredCheckboxSchema = (message: string) =>
+  z.boolean().refine((value) => value === true, { message })
+
+const CARRIER_DATA_SHARING_MESSAGE =
+  'You must agree to the data-sharing disclosure to submit your application'
+
 const yearsExperienceSchema = z
   .string()
   .refine((value) => (yearsExperienceOptions as readonly string[]).includes(value), {
@@ -65,6 +71,7 @@ export const applicationSchema = z.object({
   // documents are always required.
   cdlPhoto: requiredFileSchema('CDL photo is required'),
   medicalCardPhoto: requiredFileSchema('Medical card photo is required'),
+  carrierDataSharingAgreed: requiredCheckboxSchema(CARRIER_DATA_SHARING_MESSAGE),
 })
 
 export type ApplicationFormValues = z.infer<typeof applicationSchema>
@@ -75,28 +82,15 @@ export type ApplicationFormValues = z.infer<typeof applicationSchema>
 // keeps large photo uploads from ever passing through the serverless
 // function body, which has a hard 4.5MB platform limit.
 //
-// drivingRecordDisclosureAcknowledged is just a client-asserted gate — the
-// route handler derives the actual drivingRecordDisclosureAgreedAt timestamp
-// itself at request time rather than trusting a client-supplied value, so a
-// tampered clock can't misrepresent when consent was given.
+// carrierDataSharingAgreed is just a client-asserted gate — the route
+// handler derives the actual carrierDataSharingAgreedAt timestamp itself at
+// request time rather than trusting a client-supplied value, so a tampered
+// clock can't misrepresent when consent was given.
 export const applicationApiSchema = z.object({
   ...baseApplicationFields,
   cdlPhotoUrl: uploadedBlobUrlSchema('cdl', 'CDL photo is required'),
   medicalCardPhotoUrl: uploadedBlobUrlSchema('medical', 'Medical card photo is required'),
-  drivingRecordDisclosureAcknowledged: z.literal(true, {
-    message: 'You must agree to the driving record disclosure to submit your application',
-  }),
+  carrierDataSharingAgreed: requiredCheckboxSchema(CARRIER_DATA_SHARING_MESSAGE),
 })
 
 export type ApplicationApiValues = z.infer<typeof applicationApiSchema>
-
-// Payload handed off from the main application form to /apply/consent via
-// sessionStorage — everything /api/apply needs except the disclosure
-// acknowledgment itself, which is only collected on the consent page.
-export const pendingApplicationSchema = applicationApiSchema.omit({
-  drivingRecordDisclosureAcknowledged: true,
-})
-
-export type PendingApplicationPayload = z.infer<typeof pendingApplicationSchema>
-
-export const PENDING_APPLICATION_STORAGE_KEY = 'mileOne:pendingApplication'

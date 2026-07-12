@@ -1,0 +1,1 @@
+ALTER TABLE "applications" RENAME COLUMN "driving_record_disclosure_agreed_at" TO "carrier_data_sharing_agreed_at";
