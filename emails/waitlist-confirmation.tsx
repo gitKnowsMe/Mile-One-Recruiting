@@ -20,7 +20,10 @@ export function WaitlistConfirmationEmail({ firstName }: WaitlistConfirmationEma
   return (
     <Html>
       <Head />
-      <Preview>Your application is on file with Mile One Recruiting</Preview>
+      <Preview>
+        Your application is on file with Mile One Recruiting. We currently focus on flatbed
+        hiring and will reach out if a matching opportunity opens up.
+      </Preview>
       <Body style={{ backgroundColor: '#f4f4f5', fontFamily: 'Helvetica, Arial, sans-serif' }}>
         <Container
           style={{

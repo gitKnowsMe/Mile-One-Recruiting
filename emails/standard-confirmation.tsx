@@ -20,7 +20,10 @@ export function StandardConfirmationEmail({ firstName }: StandardConfirmationEma
   return (
     <Html>
       <Head />
-      <Preview>We received your flatbed driver application</Preview>
+      <Preview>
+        We received your flatbed driver application. Our recruiting team will review it and
+        follow up shortly to discuss next steps and get you on the road.
+      </Preview>
       <Body style={{ backgroundColor: '#f4f4f5', fontFamily: 'Helvetica, Arial, sans-serif' }}>
         <Container
           style={{
