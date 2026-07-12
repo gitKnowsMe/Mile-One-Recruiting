@@ -74,10 +74,29 @@ export type ApplicationFormValues = z.infer<typeof applicationSchema>
 // browser (see /api/apply/upload), so the API only receives their URLs. This
 // keeps large photo uploads from ever passing through the serverless
 // function body, which has a hard 4.5MB platform limit.
+//
+// drivingRecordDisclosureAcknowledged is just a client-asserted gate — the
+// route handler derives the actual drivingRecordDisclosureAgreedAt timestamp
+// itself at request time rather than trusting a client-supplied value, so a
+// tampered clock can't misrepresent when consent was given.
 export const applicationApiSchema = z.object({
   ...baseApplicationFields,
   cdlPhotoUrl: uploadedBlobUrlSchema('cdl', 'CDL photo is required'),
   medicalCardPhotoUrl: uploadedBlobUrlSchema('medical', 'Medical card photo is required'),
+  drivingRecordDisclosureAcknowledged: z.literal(true, {
+    message: 'You must agree to the driving record disclosure to submit your application',
+  }),
 })
 
 export type ApplicationApiValues = z.infer<typeof applicationApiSchema>
+
+// Payload handed off from the main application form to /apply/consent via
+// sessionStorage — everything /api/apply needs except the disclosure
+// acknowledgment itself, which is only collected on the consent page.
+export const pendingApplicationSchema = applicationApiSchema.omit({
+  drivingRecordDisclosureAcknowledged: true,
+})
+
+export type PendingApplicationPayload = z.infer<typeof pendingApplicationSchema>
+
+export const PENDING_APPLICATION_STORAGE_KEY = 'mileOne:pendingApplication'

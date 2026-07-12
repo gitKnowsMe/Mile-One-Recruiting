@@ -1,0 +1,1 @@
+ALTER TABLE "applications" ADD COLUMN "driving_record_disclosure_agreed_at" timestamp with time zone;

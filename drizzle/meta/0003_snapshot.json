@@ -1,0 +1,106 @@
+{
+  "id": "f8396004-4a8f-4a80-a4c2-dc7cd6716876",
+  "prevId": "49fa37e7-67a6-49fb-bf9b-b548588c4343",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.applications": {
+      "name": "applications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "years_experience": {
+          "name": "years_experience",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "trailer_type": {
+          "name": "trailer_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cdl_photo_url": {
+          "name": "cdl_photo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "medical_card_photo_url": {
+          "name": "medical_card_photo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "driving_record_disclosure_agreed_at": {
+          "name": "driving_record_disclosure_agreed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_waitlist": {
+          "name": "is_waitlist",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

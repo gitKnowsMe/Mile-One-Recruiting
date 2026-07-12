@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { upload } from '@vercel/blob/client'
@@ -11,7 +12,9 @@ import { FieldLabel, FieldGroup, FieldError } from '@/components/ui/field'
 import {
   applicationSchema,
   isWaitlistTrailerType,
+  PENDING_APPLICATION_STORAGE_KEY,
   type ApplicationFormValues,
+  type PendingApplicationPayload,
 } from '@/lib/application-schema'
 
 const defaultValues = {
@@ -24,21 +27,18 @@ const defaultValues = {
 }
 
 export function ApplicationForm() {
+  const router = useRouter()
   const {
     register,
     handleSubmit,
     control,
     watch,
-    reset,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
     defaultValues,
   })
 
-  const [submitted, setSubmitted] = useState(false)
-  const [submittedAsWaitlist, setSubmittedAsWaitlist] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const trailerType = watch('trailerType')
@@ -64,46 +64,22 @@ export function ApplicationForm() {
         }),
       ])
 
-      const response = await fetch('/api/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: values.firstName,
-          lastName: values.lastName,
-          email: values.email,
-          phone: values.phone,
-          yearsExperience: values.yearsExperience,
-          trailerType: values.trailerType,
-          cdlPhotoUrl: cdlBlob.url,
-          medicalCardPhotoUrl: medicalCardBlob.url,
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        const fieldErrors = result?.errors as Record<string, string[]> | undefined
-        console.error('Application submission failed:', fieldErrors)
-
-        if (fieldErrors) {
-          for (const [field, messages] of Object.entries(fieldErrors)) {
-            if (field === '_form') continue
-            setError(field as keyof ApplicationFormValues, { message: messages[0] })
-          }
-        }
-
-        setSubmitError(
-          fieldErrors?._form?.[0] ?? 'Please fix the highlighted fields and try again.'
-        )
-        return
+      // The actual submission happens after the driving-record disclosure
+      // is acknowledged on /apply/consent, so hand the (now file-free) form
+      // data off via sessionStorage and navigate there instead of posting.
+      const pendingApplication: PendingApplicationPayload = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        yearsExperience: values.yearsExperience,
+        trailerType: values.trailerType,
+        cdlPhotoUrl: cdlBlob.url,
+        medicalCardPhotoUrl: medicalCardBlob.url,
       }
 
-      setSubmittedAsWaitlist(result.isWaitlist)
-      setSubmitted(true)
-      reset(defaultValues)
-
-      // Reset success message after 5 seconds
-      setTimeout(() => setSubmitted(false), 5000)
+      sessionStorage.setItem(PENDING_APPLICATION_STORAGE_KEY, JSON.stringify(pendingApplication))
+      router.push('/apply/consent')
     } catch (error) {
       console.error('Form submission error:', error)
       setSubmitError('Something went wrong submitting your application. Please try again.')
@@ -123,22 +99,6 @@ export function ApplicationForm() {
         </div>
 
         <Card className="p-8 sm:p-12 bg-card border-border shadow-lg">
-          {submitted && (
-            <div className="mb-8 p-4 bg-green-100 border border-green-300 rounded-lg">
-              {submittedAsWaitlist ? (
-                <p className="text-green-800 font-semibold">
-                  ✓ Thanks for applying! We don&apos;t have current openings for dry van or reefer
-                  positions — our recruiting is focused on flatbed right now. We&apos;ll keep your
-                  application on file and reach out if that changes.
-                </p>
-              ) : (
-                <p className="text-green-800 font-semibold">
-                  ✓ Thanks for applying! Our recruiting team will be in touch shortly about flatbed openings.
-                </p>
-              )}
-            </div>
-          )}
-
           {submitError && (
             <div className="mb-8 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-800 font-semibold">{submitError}</p>

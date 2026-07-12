@@ -12,6 +12,13 @@ export const applications = pgTable('applications', {
   // documents are always required — no conditional logic needed here.
   cdlPhotoUrl: text('cdl_photo_url').notNull(),
   medicalCardPhotoUrl: text('medical_card_photo_url').notNull(),
+  // Nullable for now — the consent flow is being wired into the application
+  // code first; a follow-up migration will make this NOT NULL once it's
+  // confirmed live in production (same pattern used for the photo URL
+  // columns above).
+  drivingRecordDisclosureAgreedAt: timestamp('driving_record_disclosure_agreed_at', {
+    withTimezone: true,
+  }),
   isWaitlist: boolean('is_waitlist').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

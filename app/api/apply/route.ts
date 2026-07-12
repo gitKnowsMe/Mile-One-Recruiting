@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
   try {
     // Photos were already uploaded directly to Blob storage from the
     // browser (see /api/apply/upload) — we just persist their URLs here.
+    // drivingRecordDisclosureAgreedAt is stamped here, from the server's own
+    // clock, rather than trusting any client-supplied timestamp — the
+    // request body only asserts that the disclosure was acknowledged.
     await db.insert(applications).values({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -59,6 +62,7 @@ export async function POST(request: NextRequest) {
       trailerType: data.trailerType,
       cdlPhotoUrl: data.cdlPhotoUrl,
       medicalCardPhotoUrl: data.medicalCardPhotoUrl,
+      drivingRecordDisclosureAgreedAt: new Date(),
       isWaitlist,
     })
   } catch (error) {
